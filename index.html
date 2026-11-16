@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GTC Global Ticket Center - Admin Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <!-- MODAL / SCREEN LOGIN ADMIN -->
+  <div id="login-screen" class="login-container">
+    <div class="login-card">
+      <div class="brand-logo">
+        <div class="logo-icon"><i class="fa-solid fa-ticket-simple"></i></div>
+        <h2>GLOBAL TICKET CENTER</h2>
+        <p>GTC Authorized Management Console</p>
+      </div>
+
+      <form id="admin-login-form">
+        <div class="form-group">
+          <label>Username Admin</label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-user"></i>
+            <input type="text" id="login-username" placeholder="Masukkan username" value="admin" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="login-password" placeholder="Masukkan password" value="btsadmin2026" required>
+          </div>
+        </div>
+
+        <div id="login-error-msg" class="alert-error" style="display:none;"></div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="btn-do-login">
+          <i class="fa-solid fa-right-to-bracket"></i> Masuk ke Dashboard
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <span>Protected by 256-bit SSL • GTC Ticketing Engine</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN ADMIN APP INTERFACE -->
+  <div id="admin-app" class="admin-layout" style="display:none;">
+    
+    <!-- TOP HEADER -->
+    <header class="admin-header">
+      <div class="header-left">
+        <div class="app-brand">
+          <span class="gtc-tag">GTC</span>
+          <span class="brand-name">Global Ticket Center</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="btn-top btn-export" onclick="exportCSV()"><i class="fa-solid fa-file-excel"></i> Ekspor CSV</button>
+        <a href="https://livenation-bts-ticket.vercel.app/" target="_blank" class="btn-top btn-view-web"><i class="fa-solid fa-arrow-up-right-from-square"></i> Lihat Web (Vercel)</a>
+        <button class="btn-top btn-logout" onclick="logoutAdmin()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar</button>
+      </div>
+    </header>
+
+    <div class="admin-body">
+      
+      <!-- 4 KARTU STATISTIK UTAMA -->
+      <section class="stats-overview-grid">
+        <div class="stat-card">
+          <div class="stat-icon purple"><i class="fa-solid fa-receipt"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Total Transaksi</span>
+            <h3 id="stat-total-tx">0</h3>
+            <span class="stat-badge">Pesanan Masuk</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon green"><i class="fa-solid fa-sack-dollar"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Pendapatan (PAID)</span>
+            <h3 id="stat-revenue">Rp 0</h3>
+            <span class="stat-badge success">Telah Diverifikasi</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="fa-solid fa-ticket"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Tiket Terjual (Pcs)</span>
+            <h3 id="stat-sold-tickets">0</h3>
+            <span class="stat-badge info">Kursi Terisi</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon orange"><i class="fa-solid fa-clock"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Menunggu Bayar</span>
+            <h3 id="stat-pending">0</h3>
+            <span class="stat-badge warning">Status Pending</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- NAVIGATION TABS (Mobile-First Scrolling Bar) -->
+      <div class="tab-nav-wrapper">
+        <div class="tab-nav">
+          <button class="tab-btn active" onclick="switchTab('tab-transaksi')">
+            <i class="fa-solid fa-list-check"></i> Transaksi
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-analytics')">
+            <i class="fa-solid fa-chart-line"></i> Pengunjung & Klik (Live)
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-mirror-vercel')">
+            <i class="fa-solid fa-satellite-dish"></i> Live Mirror Vercel
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-tickets')">
+            <i class="fa-solid fa-tags"></i> Kelola Harga & Tiket
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-payment')">
+            <i class="fa-solid fa-credit-card"></i> Rekening & QRIS
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-settings')">
+            <i class="fa-solid fa-gear"></i> Pengaturan Konser
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 1: TRANSAKSI -->
+      <div id="tab-transaksi" class="tab-content active">
+        <div class="panel-card">
+          <div class="panel-header-toolbar">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="tx-search-input" placeholder="Cari nama, WA, ID pesanan, kursi..." oninput="handleSearchTx()">
+            </div>
+            <div class="filter-pills">
+              <button class="pill-btn active" data-filter="ALL" onclick="filterTransactions('ALL', this)">ALL</button>
+              <button class="pill-btn" data-filter="PAID" onclick="filterTransactions('PAID', this)">PAID</button>
+              <button class="pill-btn" data-filter="PENDING" onclick="filterTransactions('PENDING', this)">PENDING</button>
+              <button class="pill-btn" data-filter="CANCEL" onclick="filterTransactions('CANCEL', this)">CANCEL</button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID Pesanan</th>
+                  <th>Customer</th>
+                  <th>WhatsApp</th>
+                  <th>Kategori & Kursi</th>
+                  <th>Total Tagihan</th>
+                  <th>Status</th>
+                  <th>Waktu</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="transaction-table-body">
+                <tr>
+                  <td colspan="8" class="text-center">Memuat data transaksi...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: PENGUNJUNG & KLIK (LIVE ANALYTICS) -->
+      <div id="tab-analytics" class="tab-content">
+        <div class="panel-header-toolbar mb-3">
+          <div style="display:flex; align-items:center; gap:0.75rem;">
+            <label style="font-size:0.85rem; font-weight:700; color:var(--text-sub);">Filter Domain:</label>
+            <select id="analytics-domain-filter" onchange="filterAnalyticsDomain(this.value)" style="background:#0f172a; border:1px solid var(--border-admin); color:#fff; padding:0.4rem 0.8rem; border-radius:0.4rem; font-size:0.85rem;">
+              <option value="ALL">Semua Domain (Global)</option>
+              <option value="vercel.app">livenation-bts-ticket.vercel.app</option>
+              <option value="localhost">localhost (Website Lokal)</option>
+            </select>
+          </div>
+          <button class="btn-sm" onclick="loadAnalytics()"><i class="fa-solid fa-rotate"></i> Refresh Data</button>
+        </div>
+
+        <div class="analytics-stat-row">
+          <div class="mini-card">
+            <span class="mini-label">Total Page Views</span>
+            <h2 id="analytic-total-views">0</h2>
+          </div>
+          <div class="mini-card">
+            <span class="mini-label">Unique Visitors (IP/Device)</span>
+            <h2 id="analytic-unique-visitors">0</h2>
+          </div>
+          <div class="mini-card">
+            <span class="mini-label">Total Interaksi Klik</span>
+            <h2 id="analytic-total-clicks">0</h2>
+          </div>
+        </div>
+
+        <!-- Breakdown Domain Pengunjung -->
+        <div class="panel-card mb-4" id="domain-source-card" style="margin-bottom: 1.5rem;">
+          <div class="card-head">
+            <h3><i class="fa-solid fa-globe"></i> Sumber Trafik Domain Pengunjung</h3>
+          </div>
+          <div id="domain-source-list" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem;">
+            <!-- Render via JS -->
+          </div>
+        </div>
+
+        <div class="grid-2-col">
+          <!-- Top Element Clicked -->
+          <div class="panel-card">
+            <div class="card-head">
+              <h3><i class="fa-solid fa-chart-pie"></i> Aktivitas Paling Sering Diklik</h3>
+            </div>
+            <div id="click-summary-list" class="click-summary-wrapper">
+              <!-- Render via JS -->
+            </div>
+          </div>
+
+          <!-- Realtime Click Logs Stream -->
+          <div class="panel-card">
+            <div class="card-head">
+              <h3><i class="fa-solid fa-bolt"></i> Realtime Click Stream (Live)</h3>
+            </div>
+            <div class="live-stream-box" id="live-click-stream">
+              <!-- Render via JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2.5: LIVE MIRROR VERCEL & TRACKER CODE -->
+      <div id="tab-mirror-vercel" class="tab-content">
+        <div class="panel-card mb-4">
+          <div class="card-head">
+            <div>
+              <h3><i class="fa-brands fa-chrome"></i> Live Mirror Web: livenation-bts-ticket.vercel.app</h3>
+              <p>Pantau langsung halaman web Vercel secara live berdampingan dengan stream analytics.</p>
+            </div>
+            <a href="https://livenation-bts-ticket.vercel.app/" target="_blank" class="btn btn-primary" style="padding:0.4rem 0.9rem; font-size:0.8rem;">
+              <i class="fa-solid fa-external-link"></i> Buka Tab Baru
+            </a>
+          </div>
+
+          <!-- Kotak Iframe Live Web -->
+          <div style="width:100%; height:550px; border-radius:0.75rem; overflow:hidden; border:1px solid var(--border-admin); background:#0b0f19;">
+            <iframe id="vercel-frame" src="https://livenation-bts-ticket.vercel.app/" style="width:100%; height:100%; border:none;" title="Live Mirror Vercel"></iframe>
+          </div>
+        </div>
+
+        <!-- Kode Tracker Pixel Siap Salin -->
+        <div class="panel-card">
+          <div class="card-head">
+            <div>
+              <h3><i class="fa-solid fa-code"></i> Pasang Kode Tracker Pixel ke Web Vercel</h3>
+              <p>Salin skrip 1 baris berikut dan letakkan di dalam file <code>index.html</code> web Vercel Anda sebelum tag <code>&lt;/body&gt;</code> untuk memantau pengunjung secara otomatis.</p>
+            </div>
+            <button class="btn btn-primary" onclick="copyTrackerScript()"><i class="fa-regular fa-copy"></i> Salin Kode Script</button>
+          </div>
+          <div style="background:#0b0f19; padding:1rem; border-radius:0.5rem; border:1px solid #334155;">
+            <pre style="color:#a7f3d0; font-family:monospace; font-size:0.85rem; overflow-x:auto;" id="tracker-code-snippet">&lt;!-- GTC UNIVERSAL LIVE TRACKER PIXEL --&gt;
+&lt;script src="http://localhost:3000/assets/gtc-tracker.js" async&gt;&lt;/script&gt;</pre>
+          </div>
+          <small style="color:#94a3b8; display:block; margin-top:0.6rem;">* Catatan: Jika server backend dideploy online (misal di Render, Railway, VPS, atau ngrok), ganti <code>http://localhost:3000</code> dengan domain backend publik Anda.</small>
+        </div>
+      </div>
+
+      <!-- TAB 3: KELOLA HARGA & TIKET -->
+      <div id="tab-tickets" class="tab-content">
+        <div class="panel-card">
+          <div class="card-head">
+            <div>
+              <h3>Kelola Kategori & Harga Tiket Konser</h3>
+              <p>Perubahan harga dan nama kategori akan langsung tersinkronisasi ke website pengunjung secara instan.</p>
+            </div>
+          </div>
+          <div class="category-cards-manage" id="category-manage-list">
+            <!-- Form Dinamis Per Kategori Tiket -->
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: REKENING & QRIS -->
+      <div id="tab-payment" class="tab-content">
+        <div class="panel-card max-w-700">
+          <div class="card-head">
+            <h3>Pengaturan Rekening Transfer Bank & QRIS</h3>
+            <p>Data rekening ini akan tampil otomatis di modal instruksi transfer pengunjung.</p>
+          </div>
+          <form id="payment-settings-form">
+            <div class="form-group">
+              <label>Nama Bank</label>
+              <input type="text" id="setting-bank-name" placeholder="Contoh: BCA (Bank Central Asia)" required>
+            </div>
+
+            <div class="form-group">
+              <label>Nomor Rekening</label>
+              <input type="text" id="setting-bank-account" placeholder="Contoh: 8830129481" required>
+            </div>
+
+            <div class="form-group">
+              <label>Atas Nama (Pemilik Rekening)</label>
+              <input type="text" id="setting-bank-holder" placeholder="Contoh: GLOBAL TICKET CENTER" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Simpan Rekening Pembayaran</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- TAB 5: PENGATURAN KONSER & PASSWORD -->
+      <div id="tab-settings" class="tab-content">
+        <div class="panel-card max-w-700">
+          <div class="card-head">
+            <h3>Pengaturan Acara Konser & WhatsApp</h3>
+          </div>
+          <form id="concert-settings-form">
+            <div class="form-group">
+              <label>Judul Acara Konser</label>
+              <input type="text" id="setting-concert-title" required>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-6">
+                <label>Tanggal / Jadwal Konser</label>
+                <input type="text" id="setting-concert-date" required>
+              </div>
+              <div class="form-group col-6">
+                <label>Lokasi / Stadion</label>
+                <input type="text" id="setting-concert-venue" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Nomor WhatsApp Tujuan Pemesanan (Gunakan format 62...)</label>
+              <input type="text" id="setting-wa-number" placeholder="6281234567890" required>
+            </div>
+
+            <hr class="separator">
+
+            <h4 class="sub-form-title"><i class="fa-solid fa-key"></i> Ganti Password Login Admin</h4>
+            <div class="form-group">
+              <label>Password Baru (Minimal 5 karakter)</label>
+              <input type="password" id="setting-new-password" placeholder="Kosongkan jika tidak ingin mengubah password">
+            </div>
+
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Simpan Seluruh Pengaturan</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
