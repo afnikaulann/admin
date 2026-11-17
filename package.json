@@ -1,8 +1,12 @@
+
 {
   "name": "bts-concert-ticketing-system",
   "version": "1.0.0",
   "description": "Sistem Terpisah Website Pengunjung Konser BTS & Admin Panel GTC via API",
   "main": "server.js",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "start": "node server.js"
   },
